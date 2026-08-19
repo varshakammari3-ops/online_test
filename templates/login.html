@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Student Login</h2>
+
+<form method="POST">
+
+    <label>Email</label>
+
+    <input type="email"
+           name="email"
+           required>
+
+    <label>Password</label>
+
+    <input type="password"
+           name="password"
+           required>
+
+    <button type="submit">
+        Login
+    </button>
+
+</form>
+
+<p>
+    New student?
+    <a href="{{ url_for('register') }}">
+        Register here
+    </a>
+</p>
+
+{% endblock %}

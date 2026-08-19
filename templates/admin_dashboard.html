@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Admin Dashboard</h2>
+
+<a class="button"
+   href="{{ url_for('add_question') }}">
+    + Add Question
+</a>
+
+<h3>Questions</h3>
+
+{% if questions %}
+
+<table>
+
+    <tr>
+        <th>ID</th>
+        <th>Question</th>
+        <th>Correct Answer</th>
+        <th>Action</th>
+    </tr>
+
+    {% for q in questions %}
+
+    <tr>
+
+        <td>{{ q['id'] }}</td>
+
+        <td>{{ q['question'] }}</td>
+
+        <td>{{ q['answer'] }}</td>
+
+        <td>
+
+            <a class="delete"
+               href="{{ url_for('delete_question',
+                                question_id=q['id']) }}"
+               onclick="return confirm('Delete this question?')">
+
+                Delete
+
+            </a>
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% else %}
+
+<p>No questions added yet.</p>
+
+{% endif %}
+
+
+<h3>Student Results</h3>
+
+{% if results %}
+
+<table>
+
+    <tr>
+
+        <th>Student</th>
+        <th>Email</th>
+        <th>Score</th>
+        <th>Total</th>
+        <th>Percentage</th>
+        <th>Date</th>
+
+    </tr>
+
+    {% for result in results %}
+
+    <tr>
+
+        <td>{{ result['name'] }}</td>
+
+        <td>{{ result['email'] }}</td>
+
+        <td>{{ result['score'] }}</td>
+
+        <td>{{ result['total'] }}</td>
+
+        <td>
+            {{ "%.2f"|format(
+                (result['score'] / result['total']) * 100
+            ) }}%
+        </td>
+
+        <td>{{ result['date'] }}</td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% else %}
+
+<p>No student has completed an examination yet.</p>
+
+{% endif %}
+
+{% endblock %}

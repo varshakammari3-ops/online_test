@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Welcome, {{ name }}</h2>
+
+<div class="dashboard">
+
+    <div class="card">
+
+        <h3>Online Examination</h3>
+
+        <p>
+            Click below to start your examination.
+        </p>
+
+        <a class="button"
+           href="{{ url_for('exam') }}">
+            Start Exam
+        </a>
+
+    </div>
+
+    <div class="card">
+
+        <h3>My Results</h3>
+
+        <p>
+            View your previous examination results.
+        </p>
+
+        <a class="button"
+           href="{{ url_for('my_results') }}">
+            View Results
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

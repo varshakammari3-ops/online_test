@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Add Examination Question</h2>
+
+<form method="POST">
+
+    <label>Question</label>
+
+    <textarea name="question"
+              required></textarea>
+
+    <label>Option A</label>
+
+    <input type="text"
+           name="option_a"
+           required>
+
+    <label>Option B</label>
+
+    <input type="text"
+           name="option_b"
+           required>
+
+    <label>Option C</label>
+
+    <input type="text"
+           name="option_c"
+           required>
+
+    <label>Option D</label>
+
+    <input type="text"
+           name="option_d"
+           required>
+
+    <label>Correct Answer</label>
+
+    <select name="answer" required>
+
+        <option value="">Select Answer</option>
+
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+
+    </select>
+
+    <button type="submit">
+        Add Question
+    </button>
+
+</form>
+
+{% endblock %}

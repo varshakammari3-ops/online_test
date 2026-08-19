@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Admin Login</h2>
+
+<form method="POST">
+
+    <label>Username</label>
+
+    <input type="text"
+           name="username"
+           required>
+
+    <label>Password</label>
+
+    <input type="password"
+           name="password"
+           required>
+
+    <button type="submit">
+        Admin Login
+    </button>
+
+</form>
+
+<p>
+    Demo Admin Username: <b>admin</b>
+</p>
+
+<p>
+    Demo Admin Password: <b>admin123</b>
+</p>
+
+{% endblock %}

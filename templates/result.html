@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if score is not none %}
+
+<div class="result">
+
+    <h2>Examination Result</h2>
+
+    <h1>
+        {{ score }} / {{ total }}
+    </h1>
+
+    <p>
+        Percentage:
+        {{ "%.2f"|format((score / total) * 100) }}%
+    </p>
+
+    <a class="button"
+       href="{{ url_for('student_dashboard') }}">
+        Back to Dashboard
+    </a>
+
+</div>
+
+{% else %}
+
+<h2>My Results</h2>
+
+{% if history %}
+
+<table>
+
+    <tr>
+        <th>Date</th>
+        <th>Score</th>
+        <th>Total</th>
+        <th>Percentage</th>
+    </tr>
+
+    {% for result in history %}
+
+    <tr>
+
+        <td>{{ result['date'] }}</td>
+
+        <td>{{ result['score'] }}</td>
+
+        <td>{{ result['total'] }}</td>
+
+        <td>
+            {{ "%.2f"|format((result['score'] / result['total']) * 100) }}%
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% else %}
+
+<p>No examination results available.</p>
+
+{% endif %}
+
+{% endif %}
+
+{% endblock %}
