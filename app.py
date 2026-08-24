@@ -149,15 +149,32 @@ def login():
 # STUDENT DASHBOARD
 # =========================
 
+# =========================
+# STUDENT DASHBOARD
+# =========================
+
 @app.route("/student/dashboard")
 def student_dashboard():
 
     if "student_id" not in session:
         return redirect(url_for("login"))
 
+    conn = get_db()
+
+    # Check if student already attempted the exam
+    existing_result = conn.execute(
+        "SELECT id FROM results WHERE student_id = ?",
+        (session["student_id"],)
+    ).fetchone()
+
+    conn.close()
+
+    attempted = existing_result is not None
+
     return render_template(
         "student_dashboard.html",
-        name=session["student_name"]
+        name=session["student_name"],
+        attempted=attempted
     )
 
 
@@ -204,6 +221,10 @@ def exam():
 # SUBMIT EXAM
 # =========================
 
+# =========================
+# SUBMIT EXAM
+# =========================
+
 @app.route("/submit_exam", methods=["POST"])
 def submit_exam():
 
@@ -211,6 +232,17 @@ def submit_exam():
         return redirect(url_for("login"))
 
     conn = get_db()
+
+    # Check if student already attempted the exam
+    existing_result = conn.execute(
+        "SELECT id FROM results WHERE student_id = ?",
+        (session["student_id"],)
+    ).fetchone()
+
+    if existing_result:
+        conn.close()
+        flash("You have already attempted the exam.")
+        return redirect(url_for("student_dashboard"))
 
     questions = conn.execute(
         "SELECT * FROM questions"
@@ -245,7 +277,6 @@ def submit_exam():
         score=score,
         total=total
     )
-
 
 # =========================
 # STUDENT RESULT HISTORY
