@@ -14,10 +14,25 @@
             Click below to start your examination.
         </p>
 
-        <a class="button"
-           href="{{ url_for('exam') }}">
-            Start Exam
-        </a>
+        {% if attempted %}
+
+    <p style="color: red;">
+        <strong>Exam Already Attempted</strong>
+    </p>
+
+    <p>
+        You have already completed the examination.
+        You cannot attempt it again.
+    </p>
+
+{% else %}
+
+    <a class="button"
+       href="{{ url_for('exam') }}">
+        Start Exam
+    </a>
+
+{% endif %}
 
     </div>
 
