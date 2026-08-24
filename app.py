@@ -173,6 +173,17 @@ def exam():
 
     conn = get_db()
 
+    # Check if student already attempted the exam
+    existing_result = conn.execute(
+        "SELECT id FROM results WHERE student_id = ?",
+        (session["student_id"],)
+    ).fetchone()
+
+    if existing_result:
+        conn.close()
+        flash("You have already attempted the exam.")
+        return redirect(url_for("student_dashboard"))
+
     questions = conn.execute(
         "SELECT * FROM questions"
     ).fetchall()
