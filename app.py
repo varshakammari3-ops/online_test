@@ -15,8 +15,8 @@ DATABASE = "exam.db"
 # =========================
 # Change these two values for each exam. Format: YYYY-MM-DD HH:MM
 # Time zone is India Standard Time (IST).
-EXAM_START = os.environ.get("EXAM_START", "2026-09-01 11:00")
-EXAM_END = os.environ.get("EXAM_END", "2026-09-01 12:00")
+EXAM_START = os.environ.get("EXAM_START", "2026-08-31 11:00")
+EXAM_END = os.environ.get("EXAM_END", "2026-08-31 12:00")
 
 def exam_status():
     """Return (status, start, end) using India Standard Time."""
