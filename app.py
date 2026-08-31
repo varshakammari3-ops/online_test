@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -7,6 +9,38 @@ app = Flask(__name__)
 app.secret_key = "online_exam_secret_key"
 
 DATABASE = "exam.db"
+
+# =========================
+# EXAM SCHEDULE
+# =========================
+# Change these two values for each exam. Format: YYYY-MM-DD HH:MM
+# Time zone is India Standard Time (IST).
+EXAM_START = os.environ.get("EXAM_START", "2026-09-01 10:00")
+EXAM_END = os.environ.get("EXAM_END", "2026-09-01 11:00")
+
+def exam_status():
+    """Return (status, start, end) using India Standard Time."""
+    tz = ZoneInfo("Asia/Kolkata")
+    start = datetime.strptime(EXAM_START, "%Y-%m-%d %H:%M").replace(tzinfo=tz)
+    end = datetime.strptime(EXAM_END, "%Y-%m-%d %H:%M").replace(tzinfo=tz)
+    now = datetime.now(tz)
+
+    if now < start:
+        return "not_started", start, end
+    if now >= end:
+        return "ended", start, end
+    return "active", start, end
+
+def exam_is_active():
+    return exam_status()[0] == "active"
+
+def exam_time_message():
+    status, start, end = exam_status()
+    if status == "not_started":
+        return f"Exam starts on {start.strftime('%d-%m-%Y at %I:%M %p')} IST."
+    if status == "ended":
+        return f"Exam ended on {end.strftime('%d-%m-%Y at %I:%M %p')} IST."
+    return ""
 
 
 # =========================
@@ -171,10 +205,15 @@ def student_dashboard():
 
     attempted = existing_result is not None
 
+    status, start, end = exam_status()
+
     return render_template(
         "student_dashboard.html",
         name=session["student_name"],
-        attempted=attempted
+        attempted=attempted,
+        exam_status=status,
+        exam_start=start.strftime("%d-%m-%Y %I:%M %p IST"),
+        exam_end=end.strftime("%d-%m-%Y %I:%M %p IST")
     )
 
 
@@ -201,6 +240,13 @@ def exam():
         flash("You have already attempted the exam.")
         return redirect(url_for("student_dashboard"))
 
+    # Server-side exam time restriction.
+    # Students cannot access the exam before the start time or after the end time.
+    if not exam_is_active():
+        conn.close()
+        flash(exam_time_message())
+        return redirect(url_for("student_dashboard"))
+
     questions = conn.execute(
         "SELECT * FROM questions"
     ).fetchall()
@@ -211,9 +257,14 @@ def exam():
         flash("No questions available.")
         return redirect(url_for("student_dashboard"))
 
+    status, start, end = exam_status()
+
     return render_template(
         "exam.html",
-        questions=questions
+        questions=questions,
+        exam_start=start.strftime("%d-%m-%Y %I:%M %p IST"),
+        exam_end=end.strftime("%d-%m-%Y %I:%M %p IST"),
+        exam_end_iso=end.isoformat()
     )
 
 
@@ -242,6 +293,14 @@ def submit_exam():
     if existing_result:
         conn.close()
         flash("You have already attempted the exam.")
+        return redirect(url_for("student_dashboard"))
+
+    # IMPORTANT: do not accept submissions after the exam end time.
+    # This prevents a student from bypassing the time limit by manually
+    # submitting the form after the exam has ended.
+    if not exam_is_active():
+        conn.close()
+        flash("Exam time is over. Your submission was not accepted.")
         return redirect(url_for("student_dashboard"))
 
     questions = conn.execute(
@@ -477,6 +536,9 @@ def admin_logout():
 # RUN APPLICATION
 # =========================
 
+# Initialize the database when Flask/Gunicorn imports this module.
+init_db()
+
 if __name__ == "__main__":
 
     init_db()
@@ -484,5 +546,5 @@ if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 5000)),
-        debug=True
+        debug=False
     )
